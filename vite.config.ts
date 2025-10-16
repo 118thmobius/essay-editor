@@ -6,5 +6,15 @@ export default defineConfig({
   root: '.',
   build: {
     outDir: 'dist'
+  },
+  server: {
+    proxy: {
+      '/api/grade': {
+        target: process.env.VITE_API_TARGET,
+        changeOrigin: true,
+        rewrite: () => '/grade',
+        secure: true
+      }
+    }
   }
 })

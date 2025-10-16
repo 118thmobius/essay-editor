@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import Section from './components/Section';
 import './App.css';
 
@@ -244,7 +244,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(submitUrl, {
+        const response = await fetch(submitUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -253,13 +253,28 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('HTTP Error Response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
       }
 
-      const responseData = await response.json();
+      const responseText = await response.text();
+      console.log('Server Response:', responseText);
       
-      if (responseData?.essay) {
-        const essay = responseData.essay;
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
+        return;
+      }
+      
+      console.log('Parsed Response Data:', responseData);
+      
+      // essay プロパティがある場合とない場合の両方をサポート
+      const essay = responseData?.essay || responseData;
+      
+      if (essay && (essay.title || essay.sections || essay.globalSettings)) {
         
         if (essay.title) setEssayTitle(essay.title);
         
@@ -294,7 +309,7 @@ function App() {
         
         alert('サーバーからの応答を受信しました');
       } else {
-        alert('サーバーからの応答形式が正しくありません');
+        console.error('Invalid response format:', responseData);
       }
     } catch (error) {
       console.error('送信エラー:', error);

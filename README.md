@@ -29,7 +29,7 @@ npm install
 ### 開発サーバーの起動
 
 ```bash
-npm start
+npm run dev
 ```
 
 ブラウザで `http://localhost:3000` にアクセスしてください。
