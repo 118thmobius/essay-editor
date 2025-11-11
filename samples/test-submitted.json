@@ -1,34 +1,88 @@
 {
-  "essay": {
-    "title": "テスト小論文",
+  "test": {
+    "title": "総合試験",
     "globalSettings": {
-      "editable": true,
+      "editable": false,
       "editable_structure": false
     },
     "metadata": {
       "timer": {
-        "limit": 3600,
-        "elapsed": 1800
-      }
+        "limit": 5400,
+        "elapsed": 4200
+      },
+      "submittedAt": "2024-01-15T14:30:00Z"
     },
-    "sections": [
+    "questions": [
       {
-        "id": "1",
-        "title": "序論",
-        "content": "これはテストの内容です。\n複数行にわたって書かれています。",
-        "maxCharacters": 100,
-        "metadata": {
-          "instruction": "問題提起を明確に示し、論点を整理してください"
-        }
+        "type": "multiple_choice",
+        "id": "mc1",
+        "title": "多肢選択問題 第1問",
+        "question": "次の文章を読んで、最も適切な答えを選びなさい。",
+        "options": [
+          {
+            "id": "a",
+            "text": "選択肢A"
+          },
+          {
+            "id": "b",
+            "text": "選択肢B"
+          },
+          {
+            "id": "c",
+            "text": "選択肢C"
+          },
+          {
+            "id": "d",
+            "text": "選択肢D"
+          }
+        ],
+        "selectedAnswer": "b"
       },
       {
-        "id": "2",
-        "title": "本論",
-        "content": "本論の内容です。",
-        "maxCharacters": 200,
-        "metadata": {
-          "instruction": "根拠を示しながら論理的に展開してください"
-        }
+        "type": "multiple_choice",
+        "id": "mc2",
+        "title": "多肢選択問題 第2問",
+        "question": "以下の説明に最も当てはまるものはどれか。",
+        "options": [
+          {
+            "id": "a",
+            "text": "選択肢A"
+          },
+          {
+            "id": "b",
+            "text": "選択肢B"
+          },
+          {
+            "id": "c",
+            "text": "選択肢C"
+          }
+        ],
+        "selectedAnswer": "a"
+      },
+      {
+        "type": "essay",
+        "id": "essay1",
+        "title": "小論文問題 第1問",
+        "sections": [
+          {
+            "id": "1",
+            "title": "序論",
+            "content": "現代社会における情報技術の発達は、私たちの生活に大きな変化をもたらしている。",
+            "maxCharacters": 100,
+            "metadata": {
+              "instruction": "30字以内で、わかりやすく簡潔に表してください"
+            }
+          },
+          {
+            "id": "2",
+            "title": "本論",
+            "content": "特にインターネットの普及により、情報の取得や共有が容易になった一方で、情報の信頼性や個人のプライバシー保護といった新たな課題も生まれている。これらの課題に対して、技術的な解決策と社会的な制度の両面からアプローチする必要がある。",
+            "maxCharacters": 200,
+            "metadata": {
+              "instruction": "30字以内で、わかりやすく簡潔に表してください"
+            }
+          }
+        ]
       }
     ]
   }

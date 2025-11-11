@@ -1,37 +1,43 @@
 import {useState} from 'react';
-import Section from './components/Section';
+import MultipleChoiceQuestion from './components/MultipleChoiceQuestion';
+import EssayQuestion from './components/EssayQuestion';
 import './App.css';
 
-interface SectionData {
+interface Option {
+  id: string;
+  text: string;
+}
+
+interface MultipleChoiceQuestionData {
+  type: 'multiple_choice';
   id: string;
   title: string;
-  content?: string;
-  maxChars?: number;
-  instruction?: string;
-  scoring?: {
-    maxPoints?: number | null;
-    points?: number | null;
-    comment?: string;
-  };
+  question: string;
+  options: Option[];
+  selectedAnswer: string | null;
 }
 
-interface ImportedSection {
-  id?: string;
-  title?: string;
-  content?: string;
-  maxCharacters?: number;
+interface EssaySection {
+  id: string;
+  title: string;
+  content: string;
+  maxCharacters: number;
   metadata?: {
     instruction?: string;
-    scoring?: {
-      maxPoints?: number | null;
-      points?: number | null;
-      comment?: string;
-    };
   };
 }
 
-interface ImportedEssay {
-  essay?: {
+interface EssayQuestionData {
+  type: 'essay';
+  id: string;
+  title: string;
+  sections: EssaySection[];
+}
+
+type QuestionData = MultipleChoiceQuestionData | EssayQuestionData;
+
+interface ImportedTest {
+  test?: {
     title?: string;
     globalSettings?: {
       timer?: {
@@ -48,15 +54,13 @@ interface ImportedEssay {
         overallComment?: string;
       };
     };
-    sections?: ImportedSection[];
+    questions?: any[];
   };
 }
 
 function App() {
-  const [essayTitle, setEssayTitle] = useState('小論文');
-  const [sections, setSections] = useState<SectionData[]>([
-    { id: '1', title: 'セクション1' }
-  ]);
+  const [testTitle, setTestTitle] = useState('総合試験');
+  const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [globalGridMode, setGlobalGridMode] = useState(true);
   const [globalCharsPerLine, setGlobalCharsPerLine] = useState(40);
   const [globalSettings, setGlobalSettings] = useState({
@@ -71,25 +75,28 @@ function App() {
   });
   const [submitUrl, setSubmitUrl] = useState('');
 
-  const addSection = () => {
-    const newId = Date.now().toString();
-    setSections([...sections, { id: newId, title: `セクション${sections.length + 1}` }]);
-  };
-
-  const deleteSection = (id: string) => {
-    setSections(sections.filter(section => section.id !== id));
-  };
-
-  const updateSectionTitle = (id: string, title: string) => {
-    setSections(sections.map(section => 
-      section.id === id ? { ...section, title } : section
+  const handleMultipleChoiceAnswer = (questionId: string, answerId: string) => {
+    setQuestions(questions.map(question => 
+      question.id === questionId && question.type === 'multiple_choice'
+        ? { ...question, selectedAnswer: answerId }
+        : question
     ));
   };
 
-  const updateSectionContent = (id: string, content: string, maxChars: number) => {
-    setSections(sections.map(section => 
-      section.id === id ? { ...section, content, maxChars } : section
-    ));
+  const handleEssaySectionChange = (questionId: string, sectionId: string, content: string, maxChars: number) => {
+    setQuestions(questions.map(question => {
+      if (question.id === questionId && question.type === 'essay') {
+        return {
+          ...question,
+          sections: question.sections.map(section =>
+            section.id === sectionId
+              ? { ...section, content, maxCharacters: maxChars }
+              : section
+          )
+        };
+      }
+      return question;
+    }));
   };
 
   const normalizeText = (text: string) => {
@@ -111,7 +118,7 @@ function App() {
   };
 
   const importFromJSON = async () => {
-    const confirmed = confirm('既存のセクションはすべて削除され、JSONファイルの内容で置き換えられます。\n続行しますか？');
+    const confirmed = confirm('既存の問題はすべて削除され、JSONファイルの内容で置き換えられます。\n続行しますか？');
     
     if (!confirmed) return;
     
@@ -125,7 +132,7 @@ function App() {
         if (!file) return;
         
         const text = await file.text();
-        let parsed: ImportedEssay;
+        let parsed: ImportedTest;
         
         try {
           parsed = JSON.parse(text);
@@ -134,44 +141,62 @@ function App() {
           return;
         }
         
-        if (!parsed?.essay) {
+        if (!parsed?.test) {
           alert('JSONファイルの形式が正しくありません');
           return;
         }
         
-        const essay = parsed.essay;
+        const test = parsed.test;
         
-        if (essay.title) setEssayTitle(essay.title);
+        if (test.title) setTestTitle(test.title);
         
-        if (essay.globalSettings) {
+        if (test.globalSettings) {
           setGlobalSettings({
             timer: {
-              limit: essay.globalSettings.timer?.limit ?? 0,
-              elapsed: essay.globalSettings.timer?.elapsed ?? 0
+              limit: test.globalSettings.timer?.limit ?? 0,
+              elapsed: test.globalSettings.timer?.elapsed ?? 0
             },
-            editable: essay.globalSettings.editable ?? true,
-            editable_structure: essay.globalSettings.editable_structure ?? true
+            editable: test.globalSettings.editable ?? true,
+            editable_structure: test.globalSettings.editable_structure ?? true
           });
         }
         
         setTotalScoring({
-          maxPoints: essay.metadata?.totalScoring?.maxPoints ?? null,
-          points: essay.metadata?.totalScoring?.points ?? null,
-          overallComment: essay.metadata?.totalScoring?.overallComment ?? ''
+          maxPoints: test.metadata?.totalScoring?.maxPoints ?? null,
+          points: test.metadata?.totalScoring?.points ?? null,
+          overallComment: test.metadata?.totalScoring?.overallComment ?? ''
         });
         
-        if (essay.sections?.length) {
-          const newSections: SectionData[] = essay.sections.map((section: ImportedSection, index: number) => ({
-            id: section.id || Date.now().toString() + index,
-            title: section.title || `セクション${index + 1}`,
-            content: section.content || '',
-            maxChars: section.maxCharacters || 400,
-            instruction: section.metadata?.instruction,
-            scoring: section.metadata?.scoring
-          }));
-          setSections(newSections);
+        if (test.questions?.length) {
+          const newQuestions: QuestionData[] = test.questions.map((question: any) => {
+            if (question.type === 'multiple_choice') {
+              return {
+                type: 'multiple_choice',
+                id: question.id,
+                title: question.title,
+                question: question.question,
+                options: question.options,
+                selectedAnswer: question.selectedAnswer
+              };
+            } else if (question.type === 'essay') {
+              return {
+                type: 'essay',
+                id: question.id,
+                title: question.title,
+                sections: question.sections.map((section: any) => ({
+                  id: section.id,
+                  title: section.title,
+                  content: section.content || '',
+                  maxCharacters: section.maxCharacters || 400,
+                  metadata: section.metadata
+                }))
+              };
+            }
+            return question;
+          });
+          setQuestions(newQuestions);
         } else {
-          setSections([{ id: Date.now().toString(), title: 'セクション1' }]);
+          setQuestions([]);
         }
         
         alert('JSONファイルからデータを復元しました');
@@ -185,8 +210,8 @@ function App() {
   };
 
   const createJSONData = () => ({
-    essay: {
-      title: essayTitle,
+    test: {
+      title: testTitle,
       globalSettings: {
         timer: {
           limit: globalSettings.timer?.limit ?? 0,
@@ -204,18 +229,32 @@ function App() {
           }
         }
       } : {}),
-      sections: sections.map(section => ({
-        id: section.id,
-        title: section.title,
-        content: normalizeText(section.content || ''),
-        maxCharacters: section.maxChars || 400,
-        metadata: {
-          ...(section.instruction && { instruction: section.instruction }),
-          ...(section.scoring && {
-            scoring: section.scoring
-          })
+      questions: questions.map(question => {
+        if (question.type === 'multiple_choice') {
+          return {
+            type: 'multiple_choice',
+            id: question.id,
+            title: question.title,
+            question: question.question,
+            options: question.options,
+            selectedAnswer: question.selectedAnswer
+          };
+        } else if (question.type === 'essay') {
+          return {
+            type: 'essay',
+            id: question.id,
+            title: question.title,
+            sections: question.sections.map(section => ({
+              id: section.id,
+              title: section.title,
+              content: normalizeText(section.content || ''),
+              maxCharacters: section.maxCharacters,
+              metadata: section.metadata
+            }))
+          };
         }
-      }))
+        return question;
+      })
     }
   });
 
@@ -271,40 +310,58 @@ function App() {
       
       console.log('Parsed Response Data:', responseData);
       
-      // essay プロパティがある場合とない場合の両方をサポート
-      const essay = responseData?.essay || responseData;
+      // test プロパティがある場合とない場合の両方をサポート
+      const test = responseData?.test || responseData;
       
-      if (essay && (essay.title || essay.sections || essay.globalSettings)) {
+      if (test && (test.title || test.questions || test.globalSettings)) {
         
-        if (essay.title) setEssayTitle(essay.title);
+        if (test.title) setTestTitle(test.title);
         
-        if (essay.globalSettings) {
+        if (test.globalSettings) {
           setGlobalSettings({
             timer: {
-              limit: essay.globalSettings.timer?.limit ?? 0,
-              elapsed: essay.globalSettings.timer?.elapsed ?? 0
+              limit: test.globalSettings.timer?.limit ?? 0,
+              elapsed: test.globalSettings.timer?.elapsed ?? 0
             },
-            editable: essay.globalSettings.editable ?? true,
-            editable_structure: essay.globalSettings.editable_structure ?? true
+            editable: test.globalSettings.editable ?? true,
+            editable_structure: test.globalSettings.editable_structure ?? true
           });
         }
         
         setTotalScoring({
-          maxPoints: essay.metadata?.totalScoring?.maxPoints ?? null,
-          points: essay.metadata?.totalScoring?.points ?? null,
-          overallComment: essay.metadata?.totalScoring?.overallComment ?? ''
+          maxPoints: test.metadata?.totalScoring?.maxPoints ?? null,
+          points: test.metadata?.totalScoring?.points ?? null,
+          overallComment: test.metadata?.totalScoring?.overallComment ?? ''
         });
         
-        if (essay.sections?.length) {
-          const newSections: SectionData[] = essay.sections.map((section: ImportedSection, index: number) => ({
-            id: section.id || Date.now().toString() + index,
-            title: section.title || `セクション${index + 1}`,
-            content: section.content || '',
-            maxChars: section.maxCharacters || 400,
-            instruction: section.metadata?.instruction,
-            scoring: section.metadata?.scoring
-          }));
-          setSections(newSections);
+        if (test.questions?.length) {
+          const newQuestions: QuestionData[] = test.questions.map((question: any) => {
+            if (question.type === 'multiple_choice') {
+              return {
+                type: 'multiple_choice',
+                id: question.id,
+                title: question.title,
+                question: question.question,
+                options: question.options,
+                selectedAnswer: question.selectedAnswer
+              };
+            } else if (question.type === 'essay') {
+              return {
+                type: 'essay',
+                id: question.id,
+                title: question.title,
+                sections: question.sections.map((section: any) => ({
+                  id: section.id,
+                  title: section.title,
+                  content: section.content || '',
+                  maxCharacters: section.maxCharacters || 400,
+                  metadata: section.metadata
+                }))
+              };
+            }
+            return question;
+          });
+          setQuestions(newQuestions);
         }
         
         alert('サーバーからの応答を受信しました');
@@ -322,10 +379,10 @@ function App() {
       <header className="app-header">
         <input 
           type="text" 
-          value={essayTitle} 
-          onChange={(e) => setEssayTitle(e.target.value)}
+          value={testTitle} 
+          onChange={(e) => setTestTitle(e.target.value)}
           className="app-title-input"
-          placeholder="小論文の題名"
+          placeholder="試験の題名"
           disabled={!globalSettings.editable_structure}
         />
         <div className="header-controls">
@@ -350,13 +407,7 @@ function App() {
           >
             {globalGridMode ? '■ 方眼紙OFF' : '□ 方眼紙ON'}
           </button>
-          <button 
-            onClick={globalSettings.editable_structure ? addSection : undefined} 
-            className="add-section-btn"
-            disabled={!globalSettings.editable_structure}
-          >
-            + セクション追加
-          </button>
+
           <input
             type="url"
             value={submitUrl}
@@ -394,25 +445,36 @@ function App() {
         </div>
       )}
       <main className="app-main">
-        {sections.map(section => (
-          <Section
-            key={section.id}
-            id={section.id}
-            title={section.title}
-            gridMode={globalGridMode}
-            charsPerLine={globalCharsPerLine}
-            onDelete={globalSettings.editable_structure ? deleteSection : () => {}}
-            canDelete={globalSettings.editable_structure}
-            isEditable={globalSettings.editable}
-            isTitleEditable={globalSettings.editable_structure}
-            initialContent={section.content}
-            initialMaxChars={section.maxChars}
-            instruction={section.instruction}
-            scoring={section.scoring}
-            onTitleChange={updateSectionTitle}
-            onContentChange={updateSectionContent}
-          />
-        ))}
+        {questions.map(question => {
+          if (question.type === 'multiple_choice') {
+            return (
+              <MultipleChoiceQuestion
+                key={question.id}
+                id={question.id}
+                title={question.title}
+                question={question.question}
+                options={question.options}
+                selectedAnswer={question.selectedAnswer}
+                isEditable={globalSettings.editable}
+                onAnswerChange={handleMultipleChoiceAnswer}
+              />
+            );
+          } else if (question.type === 'essay') {
+            return (
+              <EssayQuestion
+                key={question.id}
+                id={question.id}
+                title={question.title}
+                sections={question.sections}
+                gridMode={globalGridMode}
+                charsPerLine={globalCharsPerLine}
+                isEditable={globalSettings.editable}
+                onSectionContentChange={handleEssaySectionChange}
+              />
+            );
+          }
+          return null;
+        })}
       </main>
     </div>
   );

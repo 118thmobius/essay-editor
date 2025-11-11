@@ -1,34 +1,87 @@
 {
-  "essay": {
-    "title": "小論文問題 第1問",
+  "test": {
+    "title": "総合試験",
     "globalSettings": {
       "editable": true,
       "editable_structure": false
     },
     "metadata": {
       "timer": {
-        "limit": 3600,
-        "elapsed": 1800
+        "limit": 5400,
+        "elapsed": 0
       }
     },
-    "sections": [
+    "questions": [
       {
-        "id": "1",
-        "title": "序論",
-        "content": "",
-        "maxCharacters": 100,
-        "metadata": {
-          "instruction": "30字以内で、わかりやすく簡潔に表してください"
-        }
+        "type": "multiple_choice",
+        "id": "mc1",
+        "title": "多肢選択問題 第1問",
+        "question": "次の文章を読んで、最も適切な答えを選びなさい。",
+        "options": [
+          {
+            "id": "a",
+            "text": "選択肢A"
+          },
+          {
+            "id": "b",
+            "text": "選択肢B"
+          },
+          {
+            "id": "c",
+            "text": "選択肢C"
+          },
+          {
+            "id": "d",
+            "text": "選択肢D"
+          }
+        ],
+        "selectedAnswer": null
       },
       {
-        "id": "2",
-        "title": "本論",
-        "content": "",
-        "maxCharacters": 200,
-        "metadata": {
-          "instruction": "30字以内で、わかりやすく簡潔に表してください"
-        }
+        "type": "multiple_choice",
+        "id": "mc2",
+        "title": "多肢選択問題 第2問",
+        "question": "以下の説明に最も当てはまるものはどれか。",
+        "options": [
+          {
+            "id": "a",
+            "text": "選択肢A"
+          },
+          {
+            "id": "b",
+            "text": "選択肢B"
+          },
+          {
+            "id": "c",
+            "text": "選択肢C"
+          }
+        ],
+        "selectedAnswer": null
+      },
+      {
+        "type": "essay",
+        "id": "essay1",
+        "title": "小論文問題 第1問",
+        "sections": [
+          {
+            "id": "1",
+            "title": "序論",
+            "content": "",
+            "maxCharacters": 100,
+            "metadata": {
+              "instruction": "30字以内で、わかりやすく簡潔に表してください"
+            }
+          },
+          {
+            "id": "2",
+            "title": "本論",
+            "content": "",
+            "maxCharacters": 200,
+            "metadata": {
+              "instruction": "30字以内で、わかりやすく簡潔に表してください"
+            }
+          }
+        ]
       }
     ]
   }
