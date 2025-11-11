@@ -2,14 +2,14 @@
   "essay": {
     "title": "テスト小論文",
     "globalSettings": {
-      "timer": {
-        "limit": 3600,
-        "elapsed": 1800
-      },
       "editable": false,
       "editable_structure": false
     },
     "metadata": {
+      "timer": {
+        "limit": 3600,
+        "elapsed": 1800
+      },
       "totalScoring": {
         "maxPoints": 50,
         "points": 40,

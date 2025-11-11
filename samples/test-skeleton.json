@@ -2,12 +2,14 @@
   "essay": {
     "title": "小論文問題 第1問",
     "globalSettings": {
-      "timer": {
-        "limit": 3600,
-        "elapsed": 0
-      },
       "editable": true,
       "editable_structure": false
+    },
+    "metadata": {
+      "timer": {
+        "limit": 3600,
+        "elapsed": 1800
+      }
     },
     "sections": [
       {
