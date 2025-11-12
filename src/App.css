@@ -233,6 +233,12 @@ html, body {
   border-bottom: 1px solid #dee2e6;
 }
 
+.total-scoring-content {
+  width: 1050px;
+  max-width: 90vw;
+  margin: 0 auto;
+}
+
 .total-scoring h3 {
   margin: 0 0 10px 0;
   color: #495057;

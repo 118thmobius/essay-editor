@@ -418,20 +418,22 @@ function App() {
       </header>
       {(totalScoring.maxPoints !== null || totalScoring.points !== null || totalScoring.overallComment) && (
         <div className="total-scoring">
-          <h3>全体採点</h3>
-          {(totalScoring.maxPoints !== null || totalScoring.points !== null) && (
-            <div className="total-score">
-              総得点: {totalScoring.points ?? '-'}/{totalScoring.maxPoints ?? '-'}
-            </div>
-          )}
-          {totalScoring.overallComment && (
-            <div className="overall-comment">
-              <strong>全体講評:</strong>
-              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-                {totalScoring.overallComment}
-              </pre>
-            </div>
-          )}
+          <div className="total-scoring-content">
+            <h3>全体採点</h3>
+            {(totalScoring.maxPoints !== null || totalScoring.points !== null) && (
+              <div className="total-score">
+                総得点: {totalScoring.points ?? '-'}/{totalScoring.maxPoints ?? '-'}
+              </div>
+            )}
+            {totalScoring.overallComment && (
+              <div className="overall-comment">
+                <strong>全体講評:</strong>
+                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                  {totalScoring.overallComment}
+                </pre>
+              </div>
+            )}
+          </div>
         </div>
       )}
       <main className="app-main">
