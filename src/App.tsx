@@ -41,35 +41,9 @@ interface EssayQuestionData {
   id: string;
   title: string;
   sections: EssaySection[];
-  metadata?: {
-    score?: number;
-    maxScore?: number;
-  };
 }
 
 type QuestionData = MultipleChoiceQuestionData | EssayQuestionData;
-
-interface ImportedTest {
-  test?: {
-    title?: string;
-    globalSettings?: {
-      timer?: {
-        limit?: number;
-        elapsed?: number;
-      };
-      editable?: boolean;
-      editable_structure?: boolean;
-    };
-    metadata?: {
-      totalScoring?: {
-        maxPoints?: number | null;
-        points?: number | null;
-        overallComment?: string;
-      };
-    };
-    questions?: any[];
-  };
-}
 
 function App() {
   const [testTitle, setTestTitle] = useState('総合試験');
@@ -145,7 +119,7 @@ function App() {
         if (!file) return;
         
         const text = await file.text();
-        let parsed: ImportedTest;
+        let parsed: any;
         
         try {
           parsed = JSON.parse(text);
@@ -175,9 +149,9 @@ function App() {
         }
         
         setTotalScoring({
-          maxPoints: test.metadata?.totalScoring?.maxPoints ?? null,
-          points: test.metadata?.totalScoring?.points ?? null,
-          overallComment: test.metadata?.totalScoring?.overallComment ?? ''
+          maxPoints: test.metadata?.maxScore ?? null,
+          points: test.metadata?.score ?? null,
+          overallComment: test.metadata?.feedback ?? ''
         });
         
         if (test.questions?.length) {
@@ -236,15 +210,13 @@ function App() {
         editable: globalSettings.editable,
         editable_structure: globalSettings.editable_structure
       },
-      ...(totalScoring.maxPoints !== null || totalScoring.points !== null || totalScoring.overallComment ? {
+      ...(totalScoring.points !== null && {
         metadata: {
-          totalScoring: {
-            maxPoints: totalScoring.maxPoints,
-            points: totalScoring.points,
-            overallComment: totalScoring.overallComment
-          }
+          score: totalScoring.points,
+          maxScore: totalScoring.maxPoints,
+          feedback: totalScoring.overallComment
         }
-      } : {}),
+      }),
       questions: questions.map(question => {
         if (question.type === 'multiple_choice') {
           return {
@@ -265,8 +237,7 @@ function App() {
               title: section.title,
               question: section.question,
               content: normalizeText(section.content || ''),
-              maxCharacters: section.maxCharacters,
-              metadata: section.metadata
+              maxCharacters: section.maxCharacters
             }))
           };
         }
@@ -327,7 +298,6 @@ function App() {
       
       console.log('Parsed Response Data:', responseData);
       
-      // test プロパティがある場合とない場合の両方をサポート
       const test = responseData?.test || responseData;
       
       if (test && (test.title || test.questions || test.globalSettings)) {
@@ -346,9 +316,9 @@ function App() {
         }
         
         setTotalScoring({
-          maxPoints: test.metadata?.totalScoring?.maxPoints ?? null,
-          points: test.metadata?.totalScoring?.points ?? null,
-          overallComment: test.metadata?.totalScoring?.overallComment ?? ''
+          maxPoints: test.metadata?.maxScore ?? null,
+          points: test.metadata?.score ?? null,
+          overallComment: test.metadata?.feedback ?? ''
         });
         
         if (test.questions?.length) {
