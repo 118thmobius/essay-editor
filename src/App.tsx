@@ -15,15 +15,24 @@ interface MultipleChoiceQuestionData {
   question: string;
   options: Option[];
   selectedAnswer: string | null;
+  metadata?: {
+    correctAnswer?: string;
+    score?: number;
+    maxScore?: number;
+    feedback?: string;
+  };
 }
 
 interface EssaySection {
   id: string;
   title: string;
+  question?: string;
   content: string;
   maxCharacters: number;
   metadata?: {
-    instruction?: string;
+    score?: number;
+    maxScore?: number;
+    feedback?: string;
   };
 }
 
@@ -32,6 +41,10 @@ interface EssayQuestionData {
   id: string;
   title: string;
   sections: EssaySection[];
+  metadata?: {
+    score?: number;
+    maxScore?: number;
+  };
 }
 
 type QuestionData = MultipleChoiceQuestionData | EssayQuestionData;
@@ -176,7 +189,8 @@ function App() {
                 title: question.title,
                 question: question.question,
                 options: question.options,
-                selectedAnswer: question.selectedAnswer
+                selectedAnswer: question.selectedAnswer,
+                metadata: question.metadata
               };
             } else if (question.type === 'essay') {
               return {
@@ -186,10 +200,12 @@ function App() {
                 sections: question.sections.map((section: any) => ({
                   id: section.id,
                   title: section.title,
+                  question: section.question,
                   content: section.content || '',
                   maxCharacters: section.maxCharacters || 400,
                   metadata: section.metadata
-                }))
+                })),
+                metadata: question.metadata
               };
             }
             return question;
@@ -247,6 +263,7 @@ function App() {
             sections: question.sections.map(section => ({
               id: section.id,
               title: section.title,
+              question: section.question,
               content: normalizeText(section.content || ''),
               maxCharacters: section.maxCharacters,
               metadata: section.metadata
@@ -343,7 +360,8 @@ function App() {
                 title: question.title,
                 question: question.question,
                 options: question.options,
-                selectedAnswer: question.selectedAnswer
+                selectedAnswer: question.selectedAnswer,
+                metadata: question.metadata
               };
             } else if (question.type === 'essay') {
               return {
@@ -353,10 +371,12 @@ function App() {
                 sections: question.sections.map((section: any) => ({
                   id: section.id,
                   title: section.title,
+                  question: section.question,
                   content: section.content || '',
                   maxCharacters: section.maxCharacters || 400,
                   metadata: section.metadata
-                }))
+                })),
+                metadata: question.metadata
               };
             }
             return question;
@@ -457,6 +477,9 @@ function App() {
                 selectedAnswer={question.selectedAnswer}
                 isEditable={globalSettings.editable}
                 onAnswerChange={handleMultipleChoiceAnswer}
+                score={question.metadata?.score}
+                maxScore={question.metadata?.maxScore}
+                feedback={question.metadata?.feedback}
               />
             );
           } else if (question.type === 'essay') {

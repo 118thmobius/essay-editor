@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, ChangeEvent, CompositionEvent } from 'react';
 import CharacterCounter from './CharacterCounter';
+import ScoringDisplay from './ScoringDisplay';
 import { convertToFullWidth, processTextInput } from '../utils/textConverter';
 import './Section.css';
 
@@ -287,12 +288,6 @@ const Section = ({
         </button>
       </div>
       
-      {instruction && (
-        <div className="section-instruction">
-          {instruction}
-        </div>
-      )}
-      
       <div className="section-toolbar">
         <div className="max-chars-control">
           <label>最大: </label>
@@ -341,21 +336,9 @@ const Section = ({
         <CharacterCounter text={content} gridMode={gridMode} charsPerLine={charsPerLine} maxChars={maxChars} />
       </div>
       
-      {scoring && (scoring.maxPoints !== null || scoring.points !== null || scoring.comment) && (
-        <div className="section-scoring">
-          {(scoring.maxPoints !== null || scoring.points !== null) && (
-            <div className="score-info">
-              得点: {scoring.points ?? '-'}/{scoring.maxPoints ?? '-'}
-            </div>
-          )}
-          {scoring.comment && (
-            <div className="comment-info">
-              <span className="comment-label">コメント:</span>
-              <pre className="comment-text" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, display: 'inline' }}>
-                {scoring.comment}
-              </pre>
-            </div>
-          )}
+      {instruction && (
+        <div className="question-text">
+          {instruction}
         </div>
       )}
       
@@ -431,6 +414,12 @@ const Section = ({
           ))}
         </div>
       </div>
+      
+      <ScoringDisplay 
+        score={scoring?.points} 
+        maxScore={scoring?.maxPoints} 
+        feedback={scoring?.comment} 
+      />
     </div>
   );
 };

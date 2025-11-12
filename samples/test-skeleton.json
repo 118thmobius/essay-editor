@@ -3,7 +3,7 @@
     "title": "総合試験",
     "globalSettings": {
       "editable": true,
-      "editable_structure": false
+      "editable_structure": true
     },
     "metadata": {
       "timer": {
@@ -15,24 +15,24 @@
       {
         "type": "multiple_choice",
         "id": "mc1",
-        "title": "多肢選択問題 第1問",
-        "question": "次の文章を読んで、最も適切な答えを選びなさい。",
+        "title": "情報技術と社会",
+        "question": "現代社会における情報技術の発達が社会に与える最も重要な影響として、適切なものはどれか。",
         "options": [
           {
             "id": "a",
-            "text": "選択肢A"
+            "text": "経済活動の効率化のみに貢献している"
           },
           {
             "id": "b",
-            "text": "選択肢B"
+            "text": "情報格差を完全に解消した"
           },
           {
             "id": "c",
-            "text": "選択肢C"
+            "text": "コミュニケーション手段の多様化と新たな課題の創出"
           },
           {
             "id": "d",
-            "text": "選択肢D"
+            "text": "従来の社会制度に全く影響を与えていない"
           }
         ],
         "selectedAnswer": null
@@ -40,20 +40,20 @@
       {
         "type": "multiple_choice",
         "id": "mc2",
-        "title": "多肢選択問題 第2問",
-        "question": "以下の説明に最も当てはまるものはどれか。",
+        "title": "情報社会の課題",
+        "question": "情報社会において個人のプライバシー保護が重要視される理由として、最も適切なものはどれか。",
         "options": [
           {
             "id": "a",
-            "text": "選択肢A"
+            "text": "個人情報の収集・利用が容易になり、悪用のリスクが高まったため"
           },
           {
             "id": "b",
-            "text": "選択肢B"
+            "text": "インターネットの普及により情報の価値が下がったため"
           },
           {
             "id": "c",
-            "text": "選択肢C"
+            "text": "政府の監視体制が弱くなったため"
           }
         ],
         "selectedAnswer": null
@@ -66,20 +66,16 @@
           {
             "id": "1",
             "title": "序論",
+            "question": "情報技術の発達が現代社会に与えた変化について、具体例を挙げながら論じてください。",
             "content": "",
-            "maxCharacters": 100,
-            "metadata": {
-              "instruction": "30字以内で、わかりやすく簡潔に表してください"
-            }
+            "maxCharacters": 100
           },
           {
             "id": "2",
             "title": "本論",
+            "question": "情報技術がもたらした課題とその解決策について、技術的・社会的な観点から具体的に述べてください。",
             "content": "",
-            "maxCharacters": 200,
-            "metadata": {
-              "instruction": "30字以内で、わかりやすく簡潔に表してください"
-            }
+            "maxCharacters": 200
           }
         ]
       }

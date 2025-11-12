@@ -1,4 +1,5 @@
 import React from 'react';
+import ScoringDisplay from './ScoringDisplay';
 import './MultipleChoiceQuestion.css';
 
 interface Option {
@@ -14,6 +15,9 @@ interface MultipleChoiceQuestionProps {
   selectedAnswer: string | null;
   isEditable: boolean;
   onAnswerChange: (questionId: string, answerId: string) => void;
+  score?: number;
+  maxScore?: number;
+  feedback?: string;
 }
 
 const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
@@ -23,7 +27,10 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
   options,
   selectedAnswer,
   isEditable,
-  onAnswerChange
+  onAnswerChange,
+  score,
+  maxScore,
+  feedback
 }) => {
   return (
     <div className="multiple-choice-question">
@@ -46,6 +53,7 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
           </label>
         ))}
       </div>
+      <ScoringDisplay score={score} maxScore={maxScore} feedback={feedback} />
     </div>
   );
 };

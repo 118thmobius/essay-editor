@@ -1,0 +1,26 @@
+.scoring-display {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #007bff;
+}
+
+.score-info {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.feedback-info {
+  color: #555;
+}
+
+.feedback-label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.feedback-text {
+  color: #666;
+}

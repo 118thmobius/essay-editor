@@ -61,3 +61,4 @@
 .option:has(input[type="radio"]:disabled):hover {
   background-color: transparent;
 }
+

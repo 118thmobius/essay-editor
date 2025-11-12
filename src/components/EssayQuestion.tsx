@@ -4,10 +4,13 @@ import Section from './Section';
 interface EssaySection {
   id: string;
   title: string;
+  question?: string;
   content: string;
   maxCharacters: number;
   metadata?: {
-    instruction?: string;
+    score?: number;
+    maxScore?: number;
+    feedback?: string;
   };
 }
 
@@ -46,7 +49,12 @@ const EssayQuestion: React.FC<EssayQuestionProps> = ({
           isTitleEditable={false}
           initialContent={section.content}
           initialMaxChars={section.maxCharacters}
-          instruction={section.metadata?.instruction}
+          instruction={section.question}
+          scoring={{
+            maxPoints: section.metadata?.maxScore,
+            points: section.metadata?.score,
+            comment: section.metadata?.feedback
+          }}
           onTitleChange={() => {}}
           onContentChange={(sectionId, content, maxChars) => 
             onSectionContentChange(id, sectionId, content, maxChars)
