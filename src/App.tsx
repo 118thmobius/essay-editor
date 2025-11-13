@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import MultipleChoiceQuestion from './components/MultipleChoiceQuestion';
-import EssayQuestion from './components/EssayQuestion';
+import Section from './components/Section';
 import './App.css';
 
 interface Option {
@@ -23,7 +23,8 @@ interface MultipleChoiceQuestionData {
   };
 }
 
-interface EssaySection {
+interface EssayQuestionData {
+  type: 'essay';
   id: string;
   title: string;
   question?: string;
@@ -36,18 +37,16 @@ interface EssaySection {
   };
 }
 
-interface EssayQuestionData {
-  type: 'essay';
-  id: string;
-  title: string;
-  sections: EssaySection[];
-}
-
 type QuestionData = MultipleChoiceQuestionData | EssayQuestionData;
+
+interface TestSection {
+  title: string;
+  questions: QuestionData[];
+}
 
 function App() {
   const [testTitle, setTestTitle] = useState('総合試験');
-  const [questions, setQuestions] = useState<QuestionData[]>([]);
+  const [sections, setSections] = useState<TestSection[]>([]);
   const [globalGridMode, setGlobalGridMode] = useState(true);
   const [globalCharsPerLine, setGlobalCharsPerLine] = useState(40);
   const [globalSettings, setGlobalSettings] = useState({
@@ -63,27 +62,25 @@ function App() {
   const [submitUrl, setSubmitUrl] = useState('');
 
   const handleMultipleChoiceAnswer = (questionId: string, answerId: string) => {
-    setQuestions(questions.map(question => 
-      question.id === questionId && question.type === 'multiple_choice'
-        ? { ...question, selectedAnswer: answerId }
-        : question
-    ));
+    setSections(sections.map(section => ({
+      ...section,
+      questions: section.questions.map(question => 
+        question.id === questionId && question.type === 'multiple_choice'
+          ? { ...question, selectedAnswer: answerId }
+          : question
+      )
+    })));
   };
 
-  const handleEssaySectionChange = (questionId: string, sectionId: string, content: string, maxChars: number) => {
-    setQuestions(questions.map(question => {
-      if (question.id === questionId && question.type === 'essay') {
-        return {
-          ...question,
-          sections: question.sections.map(section =>
-            section.id === sectionId
-              ? { ...section, content, maxCharacters: maxChars }
-              : section
-          )
-        };
-      }
-      return question;
-    }));
+  const handleEssayChange = (questionId: string, content: string, maxChars: number) => {
+    setSections(sections.map(section => ({
+      ...section,
+      questions: section.questions.map(question => 
+        question.id === questionId && question.type === 'essay'
+          ? { ...question, content, maxCharacters: maxChars }
+          : question
+      )
+    })));
   };
 
   const normalizeText = (text: string) => {
@@ -154,39 +151,37 @@ function App() {
           overallComment: test.metadata?.feedback ?? ''
         });
         
-        if (test.questions?.length) {
-          const newQuestions: QuestionData[] = test.questions.map((question: any) => {
-            if (question.type === 'multiple_choice') {
-              return {
-                type: 'multiple_choice',
-                id: question.id,
-                title: question.title,
-                question: question.question,
-                options: question.options,
-                selectedAnswer: question.selectedAnswer,
-                metadata: question.metadata
-              };
-            } else if (question.type === 'essay') {
-              return {
-                type: 'essay',
-                id: question.id,
-                title: question.title,
-                sections: question.sections.map((section: any) => ({
-                  id: section.id,
-                  title: section.title,
-                  question: section.question,
-                  content: section.content || '',
-                  maxCharacters: section.maxCharacters || 400,
-                  metadata: section.metadata
-                })),
-                metadata: question.metadata
-              };
-            }
-            return question;
-          });
-          setQuestions(newQuestions);
+        if (test.sections?.length) {
+          const newSections: TestSection[] = test.sections.map((section: any) => ({
+            title: section.title,
+            questions: section.questions.map((question: any) => {
+              if (question.type === 'multiple_choice') {
+                return {
+                  type: 'multiple_choice',
+                  id: question.id,
+                  title: question.title,
+                  question: question.question,
+                  options: question.options,
+                  selectedAnswer: question.selectedAnswer,
+                  metadata: question.metadata
+                };
+              } else if (question.type === 'essay') {
+                return {
+                  type: 'essay',
+                  id: question.id,
+                  title: question.title,
+                  question: question.question,
+                  content: question.content || '',
+                  maxCharacters: question.maxCharacters || 400,
+                  metadata: question.metadata
+                };
+              }
+              return question;
+            })
+          }));
+          setSections(newSections);
         } else {
-          setQuestions([]);
+          setSections([]);
         }
         
         alert('JSONファイルからデータを復元しました');
@@ -217,32 +212,31 @@ function App() {
           feedback: totalScoring.overallComment
         }
       }),
-      questions: questions.map(question => {
-        if (question.type === 'multiple_choice') {
-          return {
-            type: 'multiple_choice',
-            id: question.id,
-            title: question.title,
-            question: question.question,
-            options: question.options,
-            selectedAnswer: question.selectedAnswer
-          };
-        } else if (question.type === 'essay') {
-          return {
-            type: 'essay',
-            id: question.id,
-            title: question.title,
-            sections: question.sections.map(section => ({
-              id: section.id,
-              title: section.title,
-              question: section.question,
-              content: normalizeText(section.content || ''),
-              maxCharacters: section.maxCharacters
-            }))
-          };
-        }
-        return question;
-      })
+      sections: sections.map(section => ({
+        title: section.title,
+        questions: section.questions.map(question => {
+          if (question.type === 'multiple_choice') {
+            return {
+              type: 'multiple_choice',
+              id: question.id,
+              title: question.title,
+              question: question.question,
+              options: question.options,
+              selectedAnswer: question.selectedAnswer
+            };
+          } else if (question.type === 'essay') {
+            return {
+              type: 'essay',
+              id: question.id,
+              title: question.title,
+              question: question.question,
+              content: normalizeText(question.content || ''),
+              maxCharacters: question.maxCharacters
+            };
+          }
+          return question;
+        })
+      }))
     }
   });
 
@@ -321,37 +315,35 @@ function App() {
           overallComment: test.metadata?.feedback ?? ''
         });
         
-        if (test.questions?.length) {
-          const newQuestions: QuestionData[] = test.questions.map((question: any) => {
-            if (question.type === 'multiple_choice') {
-              return {
-                type: 'multiple_choice',
-                id: question.id,
-                title: question.title,
-                question: question.question,
-                options: question.options,
-                selectedAnswer: question.selectedAnswer,
-                metadata: question.metadata
-              };
-            } else if (question.type === 'essay') {
-              return {
-                type: 'essay',
-                id: question.id,
-                title: question.title,
-                sections: question.sections.map((section: any) => ({
-                  id: section.id,
-                  title: section.title,
-                  question: section.question,
-                  content: section.content || '',
-                  maxCharacters: section.maxCharacters || 400,
-                  metadata: section.metadata
-                })),
-                metadata: question.metadata
-              };
-            }
-            return question;
-          });
-          setQuestions(newQuestions);
+        if (test.sections?.length) {
+          const newSections: TestSection[] = test.sections.map((section: any) => ({
+            title: section.title,
+            questions: section.questions.map((question: any) => {
+              if (question.type === 'multiple_choice') {
+                return {
+                  type: 'multiple_choice',
+                  id: question.id,
+                  title: question.title,
+                  question: question.question,
+                  options: question.options,
+                  selectedAnswer: question.selectedAnswer,
+                  metadata: question.metadata
+                };
+              } else if (question.type === 'essay') {
+                return {
+                  type: 'essay',
+                  id: question.id,
+                  title: question.title,
+                  question: question.question,
+                  content: question.content || '',
+                  maxCharacters: question.maxCharacters || 400,
+                  metadata: question.metadata
+                };
+              }
+              return question;
+            })
+          }));
+          setSections(newSections);
         }
         
         alert('サーバーからの応答を受信しました');
@@ -416,60 +408,74 @@ function App() {
           </button>
         </div>
       </header>
-      {(totalScoring.maxPoints !== null || totalScoring.points !== null || totalScoring.overallComment) && (
-        <div className="total-scoring">
-          <div className="total-scoring-content">
-            <h3>全体採点</h3>
-            {(totalScoring.maxPoints !== null || totalScoring.points !== null) && (
-              <div className="total-score">
-                総得点: {totalScoring.points ?? '-'}/{totalScoring.maxPoints ?? '-'}
-              </div>
-            )}
-            {totalScoring.overallComment && (
-              <div className="overall-comment">
-                <strong>全体講評:</strong>
-                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-                  {totalScoring.overallComment}
-                </pre>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       <main className="app-main">
-        {questions.map(question => {
-          if (question.type === 'multiple_choice') {
-            return (
-              <MultipleChoiceQuestion
-                key={question.id}
-                id={question.id}
-                title={question.title}
-                question={question.question}
-                options={question.options}
-                selectedAnswer={question.selectedAnswer}
-                isEditable={globalSettings.editable}
-                onAnswerChange={handleMultipleChoiceAnswer}
-                score={question.metadata?.score}
-                maxScore={question.metadata?.maxScore}
-                feedback={question.metadata?.feedback}
-              />
-            );
-          } else if (question.type === 'essay') {
-            return (
-              <EssayQuestion
-                key={question.id}
-                id={question.id}
-                title={question.title}
-                sections={question.sections}
-                gridMode={globalGridMode}
-                charsPerLine={globalCharsPerLine}
-                isEditable={globalSettings.editable}
-                onSectionContentChange={handleEssaySectionChange}
-              />
-            );
-          }
-          return null;
-        })}
+        {(totalScoring.maxPoints !== null || totalScoring.points !== null || totalScoring.overallComment) && (
+          <div className="total-scoring">
+            <div className="total-scoring-content">
+              <h3>全体採点</h3>
+              {(totalScoring.maxPoints !== null || totalScoring.points !== null) && (
+                <div className="total-score">
+                  総得点: {totalScoring.points ?? '-'}/{totalScoring.maxPoints ?? '-'}
+                </div>
+              )}
+              {totalScoring.overallComment && (
+                <div className="overall-comment">
+                  <strong>全体講評:</strong>
+                  <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                    {totalScoring.overallComment}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {sections.map((section, sectionIndex) => [
+          <h2 key={`section-${sectionIndex}`} className="section-title">{section.title}</h2>,
+          ...section.questions.map(question => {
+            if (question.type === 'multiple_choice') {
+              return (
+                <MultipleChoiceQuestion
+                  key={question.id}
+                  id={question.id}
+                  title={question.title}
+                  question={question.question}
+                  options={question.options}
+                  selectedAnswer={question.selectedAnswer}
+                  isEditable={globalSettings.editable}
+                  onAnswerChange={handleMultipleChoiceAnswer}
+                  score={question.metadata?.score}
+                  maxScore={question.metadata?.maxScore}
+                  feedback={question.metadata?.feedback}
+                />
+              );
+            } else if (question.type === 'essay') {
+              return (
+                <Section
+                  key={question.id}
+                  id={question.id}
+                  title={question.title}
+                  gridMode={globalGridMode}
+                  charsPerLine={globalCharsPerLine}
+                  initialContent={question.content}
+                  initialMaxChars={question.maxCharacters}
+                  instruction={question.question}
+                  scoring={{
+                    maxPoints: question.metadata?.maxScore,
+                    points: question.metadata?.score,
+                    comment: question.metadata?.feedback
+                  }}
+                  onDelete={() => {}}
+                  onTitleChange={() => {}}
+                  onContentChange={(id, content, maxChars) => handleEssayChange(id, content, maxChars)}
+                  canDelete={false}
+                  isEditable={globalSettings.editable}
+                  isTitleEditable={false}
+                />
+              );
+            }
+            return null;
+          })
+        ]).flat()}
       </main>
     </div>
   );

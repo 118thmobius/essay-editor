@@ -13,8 +13,6 @@
 html, body {
   height: 100vh;
   overflow: hidden;
-  margin: 0;
-  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -229,14 +227,16 @@ html, body {
 
 .total-scoring {
   background: #e9ecef;
-  padding: 15px 20px;
+  padding: 15px 0;
   border-bottom: 1px solid #dee2e6;
+  margin: -20px -20px 20px -20px;
 }
 
 .total-scoring-content {
   width: 1050px;
   max-width: 90vw;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
 .total-scoring h3 {
@@ -266,12 +266,13 @@ html, body {
   padding-bottom: 8px;
 }
 
-.essay-question {
-  margin-bottom: 30px;
-}
-
-.essay-question .question-title {
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 2rem auto 1rem auto;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
   width: 1050px;
   max-width: 90vw;
-  margin: 0 auto 15px auto;
 }
