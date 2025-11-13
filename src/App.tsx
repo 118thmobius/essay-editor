@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import MultipleChoiceQuestion from './components/MultipleChoiceQuestion';
 import Section from './components/Section';
 import './App.css';
@@ -60,6 +60,21 @@ function App() {
     overallComment: ''
   });
   const [submitUrl, setSubmitUrl] = useState('');
+
+  useEffect(() => {
+    const updateScrollbarWidth = () => {
+      const appMain = document.querySelector('.app-main') as HTMLElement;
+      if (appMain) {
+        const scrollbarWidth = appMain.offsetWidth - appMain.clientWidth;
+        document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+      }
+    };
+    
+    updateScrollbarWidth();
+    window.addEventListener('resize', updateScrollbarWidth);
+    
+    return () => window.removeEventListener('resize', updateScrollbarWidth);
+  }, [sections]);
 
   const handleMultipleChoiceAnswer = (questionId: string, answerId: string) => {
     setSections(sections.map(section => ({
@@ -408,27 +423,27 @@ function App() {
           </button>
         </div>
       </header>
-      <main className="app-main">
-        {(totalScoring.maxPoints !== null || totalScoring.points !== null || totalScoring.overallComment) && (
-          <div className="total-scoring">
-            <div className="total-scoring-content">
-              <h3>全体採点</h3>
-              {(totalScoring.maxPoints !== null || totalScoring.points !== null) && (
-                <div className="total-score">
-                  総得点: {totalScoring.points ?? '-'}/{totalScoring.maxPoints ?? '-'}
-                </div>
-              )}
-              {totalScoring.overallComment && (
-                <div className="overall-comment">
-                  <strong>全体講評:</strong>
-                  <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-                    {totalScoring.overallComment}
-                  </pre>
-                </div>
-              )}
-            </div>
+      {(totalScoring.maxPoints !== null || totalScoring.points !== null || totalScoring.overallComment) && (
+        <div className="total-scoring">
+          <div className="total-scoring-content">
+            <h3>全体採点</h3>
+            {(totalScoring.maxPoints !== null || totalScoring.points !== null) && (
+              <div className="total-score">
+                総得点: {totalScoring.points ?? '-'}/{totalScoring.maxPoints ?? '-'}
+              </div>
+            )}
+            {totalScoring.overallComment && (
+              <div className="overall-comment">
+                <strong>全体講評:</strong>
+                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                  {totalScoring.overallComment}
+                </pre>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
+      <main className="app-main">
         {sections.map((section, sectionIndex) => [
           <h2 key={`section-${sectionIndex}`} className="section-title">{section.title}</h2>,
           ...section.questions.map(question => {

@@ -229,7 +229,9 @@ html, body {
   background: #e9ecef;
   padding: 15px 0;
   border-bottom: 1px solid #dee2e6;
-  margin: -20px -20px 20px -20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .total-scoring-content {
@@ -237,6 +239,7 @@ html, body {
   max-width: 90vw;
   margin: 0 auto;
   padding: 0 20px;
+  transform: translateX(calc(var(--scrollbar-width, 0px) / -2));
 }
 
 .total-scoring h3 {
