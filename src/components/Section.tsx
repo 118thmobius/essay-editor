@@ -416,8 +416,8 @@ const Section = ({
       </div>
       
       <ScoringDisplay 
-        score={scoring?.points} 
-        maxScore={scoring?.maxPoints} 
+        score={scoring?.points ?? undefined} 
+        maxScore={scoring?.maxPoints ?? undefined} 
         feedback={scoring?.comment} 
       />
     </div>
