@@ -76,6 +76,15 @@ function App() {
     return () => window.removeEventListener('resize', updateScrollbarWidth);
   }, [sections]);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const jsonUrl = urlParams.get('loadFromURL');
+    
+    if (jsonUrl) {
+      loadFromURL(jsonUrl);
+    }
+  }, []);
+
   const handleMultipleChoiceAnswer = (questionId: string, answerId: string) => {
     setSections(sections.map(section => ({
       ...section,
@@ -96,6 +105,83 @@ function App() {
           : question
       )
     })));
+  };
+
+  const loadFromURL = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data?.test) {
+        throw new Error('JSONファイルの形式が正しくありません');
+      }
+      
+      const test = data.test;
+      
+      if (test.title) setTestTitle(test.title);
+      
+      if (test.globalSettings) {
+        setGlobalSettings({
+          timer: {
+            limit: test.globalSettings.timer?.limit ?? 0,
+            elapsed: test.globalSettings.timer?.elapsed ?? 0
+          },
+          editable: test.globalSettings.editable ?? true,
+          editable_structure: test.globalSettings.editable_structure ?? true
+        });
+      }
+      
+      setTotalScoring({
+        maxPoints: test.metadata?.maxScore ?? null,
+        points: test.metadata?.score ?? null,
+        overallComment: test.metadata?.feedback ?? ''
+      });
+      
+      if (test.sections?.length) {
+        const newSections: TestSection[] = test.sections.map((section: any) => ({
+          title: section.title,
+          questions: section.questions.map((question: any) => {
+            if (question.type === 'multiple_choice') {
+              return {
+                type: 'multiple_choice',
+                id: question.id,
+                title: question.title,
+                question: question.question,
+                options: question.options,
+                selectedAnswer: question.selectedAnswer,
+                metadata: question.metadata
+              };
+            } else if (question.type === 'essay') {
+              return {
+                type: 'essay',
+                id: question.id,
+                title: question.title,
+                question: question.question,
+                content: question.content || '',
+                maxCharacters: question.maxCharacters || 400,
+                metadata: question.metadata
+              };
+            }
+            return question;
+          })
+        }));
+        setSections(newSections);
+      } else {
+        setSections([]);
+      }
+      
+      if (test.metadata?.submissionUrl) {
+        setSubmitUrl(test.metadata.submissionUrl);
+      }
+      
+    } catch (error) {
+      console.error('URL読み込みエラー:', error);
+      alert('URLからのデータ読み込みに失敗しました: ' + (error instanceof Error ? error.message : String(error)));
+    }
   };
 
   const normalizeText = (text: string) => {
@@ -489,6 +575,7 @@ function App() {
                   canDelete={false}
                   isEditable={globalSettings.editable}
                   isTitleEditable={false}
+                  isMaxCharsEditable={globalSettings.editable_structure}
                 />
               );
             }

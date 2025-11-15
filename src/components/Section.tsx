@@ -23,6 +23,7 @@ export interface SectionProps {
   canDelete?: boolean;
   isEditable?: boolean;
   isTitleEditable?: boolean;
+  isMaxCharsEditable?: boolean;
 }
 
 const Section = ({ 
@@ -39,7 +40,8 @@ const Section = ({
   onContentChange, 
   canDelete = true, 
   isEditable = true,
-  isTitleEditable = true 
+  isTitleEditable = true,
+  isMaxCharsEditable = true 
 }: SectionProps) => {
   const [content, setContent] = useState(initialContent || '');
   const [isComposing, setIsComposing] = useState(false);
@@ -304,7 +306,7 @@ const Section = ({
               }
             }}
             className="chars-input"
-            disabled={!isEditable}
+            disabled={!isMaxCharsEditable}
           >
             {Array.from({length: 7}, (_, i) => 20 + i * 5).map(num => (
               <option key={num} value={num}>{num}</option>
@@ -328,7 +330,7 @@ const Section = ({
               min="1"
               max="2000"
               style={{marginLeft: '5px'}}
-              disabled={!isEditable}
+              disabled={!isMaxCharsEditable}
             />
           )}
         </div>

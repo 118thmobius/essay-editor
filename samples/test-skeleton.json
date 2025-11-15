@@ -3,7 +3,7 @@
     "title": "総合試験",
     "globalSettings": {
       "editable": true,
-      "editable_structure": true
+      "editable_structure": false
     },
     "metadata": {
       "timer": {
