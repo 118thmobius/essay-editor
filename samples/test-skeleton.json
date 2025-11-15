@@ -9,7 +9,8 @@
       "timer": {
         "limit": 5400,
         "elapsed": 0
-      }
+      },
+      "submissionUrl": "https://api.example.com/submit-test"
     },
     "sections": [
       {

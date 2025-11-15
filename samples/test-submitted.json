@@ -10,6 +10,7 @@
         "limit": 5400,
         "elapsed": 4200
       },
+      "submissionUrl": "https://api.example.com/submit-test",
       "submittedAt": "2024-01-15T14:30:00Z"
     },
     "sections": [

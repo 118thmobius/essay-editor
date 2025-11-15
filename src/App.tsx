@@ -199,6 +199,10 @@ function App() {
           setSections([]);
         }
         
+        if (test.metadata?.submissionUrl) {
+          setSubmitUrl(test.metadata.submissionUrl);
+        }
+        
         alert('JSONファイルからデータを復元しました');
       };
       
