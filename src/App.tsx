@@ -299,24 +299,28 @@ function App() {
     }
   };
 
-  const createJSONData = () => ({
+  const createJSONData = (isSubmission = false) => ({
     test: {
       title: testTitle,
       globalSettings: {
-        timer: {
-          limit: globalSettings.timer?.limit ?? 0,
-          elapsed: globalSettings.timer?.elapsed ?? 0
-        },
         editable: globalSettings.editable,
         editable_structure: globalSettings.editable_structure
       },
-      ...(totalScoring.points !== null && {
-        metadata: {
+      metadata: {
+        ...(isSubmission && {
+          timer: {
+            limit: globalSettings.timer?.limit ?? 0,
+            elapsed: globalSettings.timer?.elapsed ?? 0
+          },
+          submissionUrl: submitUrl,
+          submittedAt: new Date().toISOString()
+        }),
+        ...(totalScoring.points !== null && {
           score: totalScoring.points,
           maxScore: totalScoring.maxPoints,
           feedback: totalScoring.overallComment
-        }
-      }),
+        })
+      },
       sections: sections.map(section => ({
         title: section.title,
         questions: section.questions.map(question => {
@@ -375,7 +379,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(createJSONData())
+        body: JSON.stringify(createJSONData(true))
       });
 
       if (!response.ok) {
